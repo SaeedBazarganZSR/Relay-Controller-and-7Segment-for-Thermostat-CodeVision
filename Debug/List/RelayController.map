@@ -1,6 +1,7 @@
 RAM Allocation [bytes]
 Variable                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
+SegNum                                                                            0x0300      10
 
 EEPROM Allocation [bytes]
 Variable                                                                          Address   Size
@@ -9,8 +10,14 @@ Variable                                                                        
 Register Allocation
 Variable                                                                          Register  Size
 ------------------------------------------------------------------------------------------------
+i                                                                                 R4           1
+j                                                                                 R3           1
+data_in                                                                           R6           1
+data_out                                                                          R5           1
 
 FLASH Allocation [words]
 Function                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
-main                                                                              0x0005A     85
+main                                                                              0x00079    115
+Relay_TurnOn                                                                      0x000EC     35
+spi                                                                               0x0010F      9

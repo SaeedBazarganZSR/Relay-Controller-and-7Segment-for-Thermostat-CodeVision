@@ -27,7 +27,25 @@ Data Stack size         : 512
 #include <delay.h>
 #include <stdint.h>
 #include <stdio.h>
+//----------------------------------------------------------------------
+typedef enum RelayNumber
+{
+	Fan = 0x01,
+	One = 0x02,
+	Two = 0x03,
+	Three = 0x04,
+	All = 0x05
+}Relay;
 
+uint8_t i = 0;
+uint8_t j = 0;
+unsigned char SegNum[10] = {0x30, 0xF9, 0x52, 0xD0, 0x99, 0x94, 0x14, 0xF1, 0x10, 0x90};
+unsigned char data_in, data_out;
+//----------------------------------------------------------------------
+void Relay_TurnOn(uint8_t Number);
+void Relay_TurnOff(uint8_t Number);
+void Display_Segment(uint8_t Data);
+//----------------------------------------------------------------------
 // SPI functions
 #include <spi.h>
 
@@ -164,7 +182,102 @@ TWCR=(0<<TWEA) | (0<<TWSTA) | (0<<TWSTO) | (0<<TWEN) | (0<<TWIE);
 
 while (1)
       {
-      // Place your code here
-
+        /*PORTC.3 = 1;
+        delay_ms(1000);
+        PORTC.3 = 0;
+        delay_ms(1000);
+        PORTC.4 = 1;
+        delay_ms(1000);
+        PORTC.4 = 0;
+        delay_ms(1000);*/
+        
+        PORTB.0 = 0;
+        PORTB.1 = 1;
+        PORTB.2 = 1;
+        data_in = spi(SegNum[1]);
+        PORTC.3 = 1;
+        PORTC.3 = 0;   
+        delay_ms(5);
+        
+        PORTB.0 = 1;
+        PORTB.1 = 0;
+        PORTB.2 = 1;
+        data_in = spi(SegNum[2]);
+        PORTC.3 = 1;
+        PORTC.3 = 0;
+        delay_ms(5);                        
+        
+        /*for(j = 0; j < 10; j++)
+        {
+            data_in = spi(SegNum[j]);
+            PORTC.3 = 1;
+            PORTC.3 = 0;
+            delay_ms(2000);                    
+        } */
       }
 }
+//----------------------------------------------------------------------
+void Relay_TurnOn(uint8_t Number)
+{
+    switch(Number)
+    {
+        case Fan:
+            PORTC.5 = 1;            
+        break;
+        case One:
+            PORTD.5 = 1;            
+        break;
+        case Two:
+            PORTD.6 = 1;            
+        break;
+        case Three:
+            PORTD.7 = 1;            
+        break;
+        case All:
+            PORTC.5 = 1;
+            PORTD.5 = 1;
+            PORTD.6 = 1;
+            PORTD.7 = 1;            
+        break;        
+    }
+}
+//----------------------------------------------------------------------
+void Relay_TurnOff(uint8_t Number)
+{
+    switch(Number)
+    {
+        case Fan:
+            PORTC.5 = 0;            
+        break;
+        case One:
+            PORTD.5 = 0;            
+        break;
+        case Two:
+            PORTD.6 = 0;            
+        break;
+        case Three:
+            PORTD.7 = 0;            
+        break;
+        case All:
+            PORTC.5 = 0;
+            PORTD.5 = 0;
+            PORTD.6 = 0;
+            PORTD.7 = 0;            
+        break;        
+    }
+}
+//----------------------------------------------------------------------
+void Display_Segment(uint8_t Data)
+{
+    for(i = 0; i < 8; i++)
+    {
+        PORTB.3 = 0x80 & (Data << i);
+        PORTB.5 = 1;
+        delay_ms(1);
+        PORTB.5 = 0;
+    }
+    PORTC.3 = 1;
+    delay_ms(1);
+    PORTC.3 = 0;
+}
+
