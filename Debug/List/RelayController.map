@@ -10,14 +10,14 @@ Variable                                                                        
 Register Allocation
 Variable                                                                          Register  Size
 ------------------------------------------------------------------------------------------------
-i                                                                                 R4           1
-j                                                                                 R3           1
-data_in                                                                           R6           1
-data_out                                                                          R5           1
+tmp1                                                                              R4           1
+tmp2                                                                              R3           1
+tmp3                                                                              R6           1
 
 FLASH Allocation [words]
 Function                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
-main                                                                              0x00079    115
-Relay_TurnOn                                                                      0x000EC     35
-spi                                                                               0x0010F      9
+main                                                                              0x00075     87
+Display                                                                           0x000CC     54
+Display_Configuration                                                             0x00102     37
+spi                                                                               0x00127      9

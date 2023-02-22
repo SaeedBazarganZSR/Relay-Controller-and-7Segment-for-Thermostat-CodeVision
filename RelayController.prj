@@ -19,8 +19,16 @@ OutputListFilesDirectory=Release\List
 OutputObjectFilesDirectory=Release
 OutputExecutableFilesDirectory=Release\Exe
 OutputLinkerFilesDirectory=Release\Exe
-AllowDisplayFunctionCallTree=0
+AllowDisplayFunctionCallTree=1
 CleanUp=2
+TimeStamp1=1448441361
+EditorPanelMode=0
+ActiveEditorPanel=0
+Active0=0
+EditorPanel0=0
+PageIndex0=0
+EditorPanel1=0
+PageIndex1=1
 [CompilerDebug]
 Chip=ATmega328P
 CPUClock=125000
@@ -119,8 +127,8 @@ WatchAVR8LAutoVariables=0
 UseEEPROMLocation0=1
 RebuildAll=0
 LinkageInformationPresent=1
-COFFileTimeStamp=1448440353
-Build=8
+COFFileTimeStamp=1448506657
+Build=38
 [DefinedSymbolsDebug]
 Count=0
 [Compiler]
@@ -222,7 +230,7 @@ UseEEPROMLocation0=1
 RebuildAll=1
 LinkageInformationPresent=0
 COFFileTimeStamp=-1
-Build=8
+Build=38
 [DefinedSymbols]
 Count=0
 [StartUp]
@@ -322,8 +330,8 @@ L13=Enhanced function parameters passing: Yes
 L14=Automatic register allocation: Yes
 L15=Smart register allocation: Yes
 L16=
-L17=Build: 8
-L18=1895 line(s) compiled
+L17=Build: 38
+L18=1934 line(s) compiled
 L19=No errors
 L20=4 warning(s)
 L21=
@@ -331,7 +339,7 @@ L22=Bit variables size: 0 byte(s)
 L23=
 L24=Data Stack area: 0x100 to 0x2FF
 L25=Data Stack size: 512 byte(s)
-L26=Estimated Data Stack usage: 1 byte(s)
+L26=Estimated Data Stack usage: 4 byte(s)
 L27=
 L28=RAM Global variables area: 0x300 to 0x309
 L29=RAM Global variables size: 10 byte(s)
@@ -342,23 +350,50 @@ L33=
 L34=Heap size: 0 byte(s)
 L35=
 L36=EEPROM usage: 0 byte(s), 0.0% of EEPROM
-L37=Program size: 298 words (596 bytes), 1.8% of FLASH
+L37=Program size: 383 words (766 bytes), 2.3% of FLASH
 Lines=38
-L38=4 words (8 bytes), 1.3% reduced by Code Compression
+L38=11 words (22 bytes), 2.8% reduced by Code Compression
 [BuildInfoAssembler]
 L1=AVRASM: AVR macro assembler 2.1.30 (build 592 Nov  7 2008 12:38:17)
 L2=Copyright (C) 1995-2008 ATMEL Corporation
 L3=
-L4=C:\Users\Sbzrgn\Desktop\Relay Controller and 7Segment for Thermostat Proteus\Relay-Controller-and-7Segment-for-Thermostat-CodeVision\Debug\List\RelayController.asm(1731): No EEPROM data, deleting C:\Users\Sbzrgn\Desktop\Relay Controller and 7Segment for Thermostat Proteus\Relay-Controller-and-7Segment-for-Thermostat-CodeVision\Debug\Exe\RelayController.eep
+L4=C:\Users\Sbzrgn\Desktop\Relay Controller and 7Segment for Thermostat Proteus\Relay-Controller-and-7Segment-for-Thermostat-CodeVision\Debug\List\RelayController.asm(1872): No EEPROM data, deleting C:\Users\Sbzrgn\Desktop\Relay Controller and 7Segment for Thermostat Proteus\Relay-Controller-and-7Segment-for-Thermostat-CodeVision\Debug\Exe\RelayController.eep
 L5=
 L6=ATmega328P memory use summary [bytes]:
 L7=Segment   Begin    End      Code   Data   Used    Size   Use%
 L8=---------------------------------------------------------------
-L9=[.cseg] 0x000000 0x000254    552     44    596   32768   1.8%
+L9=[.cseg] 0x000000 0x0002fe    730     36    766   32768   2.3%
 L10=[.dseg] 0x000100 0x00030a      0     10     10    2048   0.5%
 L11=[.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 L12=
 Lines=12
+[Bookmarks0]
+Row=0
+Column=0
+ScrollPosX=0
+ScrollPosY=0
+TimeStamp=1448441361
+[BookmarksFoldedCode]
+Files=1
+F1=RelayController.c
+[Bookmarks1]
+TimeStamp=1448441361
+Row=238
+Column=96
+ScrollPosX=0
+ScrollPosY=197
+BK0=-1
+BK1=-1
+BK2=-1
+BK3=-1
+BK4=-1
+BK5=-1
+BK6=-1
+BK7=-1
+BK8=-1
+BK9=-1
+[FoldedCode1]
+Blocks=0
 [Header1]
 Files=8
 F1=C:\cvavr\inc\mega328p.h

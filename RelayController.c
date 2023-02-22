@@ -37,14 +37,15 @@ typedef enum RelayNumber
 	All = 0x05
 }Relay;
 
-uint8_t i = 0;
-uint8_t j = 0;
 unsigned char SegNum[10] = {0x30, 0xF9, 0x52, 0xD0, 0x99, 0x94, 0x14, 0xF1, 0x10, 0x90};
-unsigned char data_in, data_out;
+uint8_t tmp1, tmp2, tmp3;
 //----------------------------------------------------------------------
 void Relay_TurnOn(uint8_t Number);
 void Relay_TurnOff(uint8_t Number);
-void Display_Segment(uint8_t Data);
+void Warning_On(void);
+void Warning_Off(void);
+void Display(uint8_t Number);
+void Display_Configuration(uint8_t Number, uint8_t Place);
 //----------------------------------------------------------------------
 // SPI functions
 #include <spi.h>
@@ -182,38 +183,7 @@ TWCR=(0<<TWEA) | (0<<TWSTA) | (0<<TWSTO) | (0<<TWEN) | (0<<TWIE);
 
 while (1)
       {
-        /*PORTC.3 = 1;
-        delay_ms(1000);
-        PORTC.3 = 0;
-        delay_ms(1000);
-        PORTC.4 = 1;
-        delay_ms(1000);
-        PORTC.4 = 0;
-        delay_ms(1000);*/
-        
-        PORTB.0 = 0;
-        PORTB.1 = 1;
-        PORTB.2 = 1;
-        data_in = spi(SegNum[1]);
-        PORTC.3 = 1;
-        PORTC.3 = 0;   
-        delay_ms(5);
-        
-        PORTB.0 = 1;
-        PORTB.1 = 0;
-        PORTB.2 = 1;
-        data_in = spi(SegNum[2]);
-        PORTC.3 = 1;
-        PORTC.3 = 0;
-        delay_ms(5);                        
-        
-        /*for(j = 0; j < 10; j++)
-        {
-            data_in = spi(SegNum[j]);
-            PORTC.3 = 1;
-            PORTC.3 = 0;
-            delay_ms(2000);                    
-        } */
+        Display(100);
       }
 }
 //----------------------------------------------------------------------
@@ -267,17 +237,72 @@ void Relay_TurnOff(uint8_t Number)
     }
 }
 //----------------------------------------------------------------------
-void Display_Segment(uint8_t Data)
+void Warning_On(void)
 {
-    for(i = 0; i < 8; i++)
-    {
-        PORTB.3 = 0x80 & (Data << i);
-        PORTB.5 = 1;
-        delay_ms(1);
-        PORTB.5 = 0;
-    }
-    PORTC.3 = 1;
-    delay_ms(1);
-    PORTC.3 = 0;
+    PORTC.4 = 1;
 }
-
+//----------------------------------------------------------------------
+void Warning_Off(void)
+{
+    PORTC.4 = 0;    
+}
+//----------------------------------------------------------------------
+void Display(uint8_t Number)
+{
+    tmp1 = (Number / 100) % 10;
+    tmp2 = (Number / 10) % 10;
+    tmp3 = (Number / 1) % 10;
+    if(Number == 100)
+    {
+        Display_Configuration(tmp1, 1);
+        delay_ms(5);
+        Display_Configuration(tmp2, 2);
+        delay_ms(5);
+        Display_Configuration(tmp3, 3);
+        delay_ms(5);        
+    }
+    else if(Number >= 10 && Number < 100)
+    {
+        Display_Configuration(tmp2, 2);
+        delay_ms(5);
+        Display_Configuration(tmp3, 3);
+        delay_ms(5);
+    }
+    else if(Number < 10)
+    {
+        Display_Configuration(tmp3, 3);
+        delay_ms(5);
+    }
+}
+//----------------------------------------------------------------------
+void Display_Configuration(uint8_t Number, uint8_t Place)
+{
+    switch(Place)
+    {
+        case 1:
+            PORTB.0 = 0;
+            PORTB.1 = 1;
+            PORTB.2 = 1;
+            spi(SegNum[Number]);
+            PORTC.3 = 1;
+            PORTC.3 = 0;
+        break;
+        case 2:
+            PORTB.0 = 1;
+            PORTB.1 = 0;
+            PORTB.2 = 1;
+            spi(SegNum[Number]);
+            PORTC.3 = 1;
+            PORTC.3 = 0;        
+        break;
+        case 3:
+            PORTB.0 = 1;
+            PORTB.1 = 1;
+            PORTB.2 = 0;
+            spi(SegNum[Number]);
+            PORTC.3 = 1;
+            PORTC.3 = 0;        
+        break;        
+    }
+}
+//----------------------------------------------------------------------
