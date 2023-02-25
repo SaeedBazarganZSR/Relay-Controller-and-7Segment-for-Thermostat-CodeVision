@@ -38,17 +38,56 @@ typedef enum RelayNumber
 }Relay;
 
 unsigned char SegNum[10] = {0x30, 0xF9, 0x52, 0xD0, 0x99, 0x94, 0x14, 0xF1, 0x10, 0x90};
-uint8_t tmp1, tmp2, tmp3;
+unsigned char SegDot = 0xEF;
+uint8_t Segment1, Segment2, Segment3;
+
+int16_t RawAdc = 0;
+uint8_t Count = 0;
+uint8_t TempInit = 0;
+uint16_t TempAvg = 0;
+uint8_t TempTarget = 0;
+uint8_t TempSetTarget = 0;
 //----------------------------------------------------------------------
 void Relay_TurnOn(uint8_t Number);
 void Relay_TurnOff(uint8_t Number);
 void Warning_On(void);
 void Warning_Off(void);
-void Display(uint8_t Number);
+void Display(uint16_t Number);
 void Display_Configuration(uint8_t Number, uint8_t Place);
+void Keys_Update(void);
+void WindSensor_Update(void);
+void LimitSensor_Update(void);
+uint8_t TempSensor_Update(void);
+void Initial(void);
 //----------------------------------------------------------------------
+// Voltage Reference: AREF pin
+#define ADC_VREF_TYPE ((0<<REFS1) | (0<<REFS0) | (0<<ADLAR))
+
+// Read the AD conversion result
+unsigned int read_adc(unsigned char adc_input)
+{
+ADMUX=adc_input | ADC_VREF_TYPE;
+// Delay needed for the stabilization of the ADC input voltage
+delay_us(10);
+// Start the AD conversion
+ADCSRA|=(1<<ADSC);
+// Wait for the AD conversion to complete
+while ((ADCSRA & (1<<ADIF))==0);
+ADCSRA|=(1<<ADIF);
+return ADCW;
+}
+
 // SPI functions
 #include <spi.h>
+
+// Timer0 Initial function
+void timer0_init()
+{
+    // set up timer with prescaler = 1024
+    TCCR0B |= (1 << CS02)|(1 << CS00);
+    // initialize counter
+    TCNT0 = 0;
+}
 
 void main(void)
 {
@@ -83,12 +122,13 @@ PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<
 
 // Timer/Counter 0 initialization
 // Clock source: System Clock
-// Clock value: Timer 0 Stopped
+// Clock value: 0.488 kHz
 // Mode: Normal top=0xFF
 // OC0A output: Disconnected
 // OC0B output: Disconnected
+// Timer Period: 0.52429 s
 TCCR0A=(0<<COM0A1) | (0<<COM0A0) | (0<<COM0B1) | (0<<COM0B0) | (0<<WGM01) | (0<<WGM00);
-TCCR0B=(0<<WGM02) | (0<<CS02) | (0<<CS01) | (0<<CS00);
+TCCR0B=(0<<WGM02) | (1<<CS02) | (0<<CS01) | (0<<CS00);
 TCNT0=0x00;
 OCR0A=0x00;
 OCR0B=0x00;
@@ -165,8 +205,15 @@ ADCSRB=(0<<ACME);
 DIDR1=(0<<AIN0D) | (0<<AIN1D);
 
 // ADC initialization
-// ADC disabled
-ADCSRA=(0<<ADEN) | (0<<ADSC) | (0<<ADATE) | (0<<ADIF) | (0<<ADIE) | (0<<ADPS2) | (0<<ADPS1) | (0<<ADPS0);
+// ADC Clock frequency: 0.977 kHz
+// ADC Voltage Reference: AREF pin
+// ADC Auto Trigger Source: ADC Stopped
+// Digital input buffers on ADC0: On, ADC1: On, ADC2: On, ADC3: On
+// ADC4: On, ADC5: On
+DIDR0=(0<<ADC5D) | (0<<ADC4D) | (0<<ADC3D) | (0<<ADC2D) | (0<<ADC1D) | (0<<ADC0D);
+ADMUX=ADC_VREF_TYPE;
+ADCSRA=(1<<ADEN) | (0<<ADSC) | (0<<ADATE) | (0<<ADIF) | (0<<ADIE) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
+ADCSRB=(0<<ADTS2) | (0<<ADTS1) | (0<<ADTS0);
 
 // SPI initialization
 // SPI Type: Master
@@ -181,9 +228,49 @@ SPSR=(0<<SPI2X);
 // TWI disabled
 TWCR=(0<<TWEA) | (0<<TWSTA) | (0<<TWSTO) | (0<<TWEN) | (0<<TWIE);
 
+//----------------------------------------------------------------------
+Initial();
+TempInit = TempSensor_Update();
+TempTarget = TempInit;
+TempSetTarget = TempInit;
+timer0_init();
+//----------------------------------------------------------------------
 while (1)
-      {
-        Display(100);
+      {       
+        WindSensor_Update();
+        LimitSensor_Update();
+        
+        Keys_Update();
+        Display(TempTarget);
+        if (TCNT0 >= 250)
+        {
+            TempInit = TempSensor_Update();
+            TCNT0 = 0;            // reset counter
+        }
+        if((TempSetTarget - TempInit) > 0 && (TempSetTarget - TempInit) < 4)
+        {
+            PORTD.7 = 1;
+            PORTD.6 = 0;
+            PORTD.5 = 0;
+        }
+        else if((TempSetTarget - TempInit) >= 5 && (TempSetTarget - TempInit) < 11)
+        {
+            PORTD.7 = 1;
+            PORTD.6 = 1;
+            PORTD.5 = 0;
+        }
+        else if((TempSetTarget - TempInit) >= 11)
+        {
+            PORTD.7 = 1;
+            PORTD.6 = 1;
+            PORTD.5 = 1;
+        }
+        else
+        {
+            PORTD.7 = 0;
+            PORTD.6 = 0;
+            PORTD.5 = 0;  
+        }       
       }
 }
 //----------------------------------------------------------------------
@@ -247,30 +334,39 @@ void Warning_Off(void)
     PORTC.4 = 0;    
 }
 //----------------------------------------------------------------------
-void Display(uint8_t Number)
+void Display(uint16_t Number)
 {
-    tmp1 = (Number / 100) % 10;
-    tmp2 = (Number / 10) % 10;
-    tmp3 = (Number / 1) % 10;
+    Segment1 = (Number / 100) % 10;
+    Segment2 = (Number / 10) % 10;
+    Segment3 = (Number / 1) % 10;
     if(Number == 100)
     {
-        Display_Configuration(tmp1, 1);
+        Display_Configuration(Segment1, 1);
         delay_ms(5);
-        Display_Configuration(tmp2, 2);
+        Display_Configuration(Segment2, 2);
         delay_ms(5);
-        Display_Configuration(tmp3, 3);
+        Display_Configuration(Segment3, 3);
         delay_ms(5);        
+    }
+    else if(Number > 100 && Number < 999)
+    {
+        Display_Configuration(Segment1, 1);
+        delay_ms(5);
+        Display_Configuration(Segment2, 2);
+        delay_ms(5);
+        Display_Configuration(Segment3, 3);
+        delay_ms(5);
     }
     else if(Number >= 10 && Number < 100)
     {
-        Display_Configuration(tmp2, 2);
+        Display_Configuration(Segment2, 2);
         delay_ms(5);
-        Display_Configuration(tmp3, 3);
+        Display_Configuration(Segment3, 3);
         delay_ms(5);
     }
     else if(Number < 10)
     {
-        Display_Configuration(tmp3, 3);
+        Display_Configuration(Segment3, 3);
         delay_ms(5);
     }
 }
@@ -306,3 +402,93 @@ void Display_Configuration(uint8_t Number, uint8_t Place)
     }
 }
 //----------------------------------------------------------------------
+void Keys_Update(void)
+{
+    if(PIND.4 == 0)    //Off_Btn
+        Initial();
+    else if(PIND.0 == 0)    //Up_Btn
+    {
+        TempTarget += 2;
+        delay_ms(1500);
+    }
+    else if(PIND.1 == 0)    //Down_Btn
+    {
+        TempTarget -= 2;
+        delay_ms(1500);
+    }
+    else if(PIND.2 == 0)    //Set_Btn
+    {                 
+        delay_ms(1500);
+        TempSetTarget = TempTarget;
+    }
+}
+//----------------------------------------------------------------------
+void WindSensor_Update(void)
+{
+    if(PINC.1 == 0)    //Wind_Off
+    {
+        Warning_On();
+        Relay_TurnOn(All);
+    }
+    else
+    {
+        Warning_Off();
+    }    
+}
+//----------------------------------------------------------------------
+void LimitSensor_Update(void)
+{
+    if(PINC.2 == 0)    //Limit_Off
+    {
+        Warning_On();
+        Relay_TurnOff(One);
+        Relay_TurnOff(Two);
+        Relay_TurnOff(Three);
+        delay_ms(3000);
+        Relay_TurnOff(Fan);
+    }
+    else
+    {
+        Warning_Off();
+    }
+}
+//----------------------------------------------------------------------
+uint8_t TempSensor_Update(void)
+{
+    RawAdc = read_adc(0);
+    if(RawAdc == 470)
+        return 25;
+    else
+    {
+        for(Count = 0; Count < 10; Count++)
+        {        
+            RawAdc = read_adc(0);
+            RawAdc -= 470;
+            RawAdc = (RawAdc * -1) + 25;
+            TempAvg += RawAdc;
+        }
+        TempAvg = TempAvg / 10;
+        return TempAvg;
+    }
+}
+//----------------------------------------------------------------------
+void Initial(void)
+{
+    PORTB.0 = 1;
+    PORTB.1 = 0;
+    PORTB.2 = 1;
+    spi(SegDot);
+    PORTC.3 = 1;
+    PORTC.3 = 0;
+    delay_ms(5);
+    PORTC.5 = 0;
+    PORTD.5 = 0;
+    PORTD.6 = 0;
+    PORTD.7 = 0;
+    while(PIND.3 == 1);
+    PORTC.5 = 1;
+    delay_ms(2000);
+}
+//----------------------------------------------------------------------
+
+
