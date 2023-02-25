@@ -242,7 +242,7 @@ while (1)
         
         Keys_Update();
         Display(TempTarget);
-        if (TCNT0 >= 200)
+        if (TCNT0 >= 250)
         {
             TempInit = TempSensor_Update();
             TCNT0 = 0;            // reset counter

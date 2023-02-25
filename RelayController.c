@@ -236,7 +236,7 @@ TempSetTarget = TempInit;
 timer0_init();
 //----------------------------------------------------------------------
 while (1)
-      {       
+      { 
         WindSensor_Update();
         LimitSensor_Update();
         
