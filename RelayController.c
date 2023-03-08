@@ -7,7 +7,7 @@ http://www.hpinfotech.com
 
 Project : 
 Version : 
-Date    : 2/21/2023
+Date    : 3/8/2023
 Author  : 
 Company : 
 Comments: 
@@ -15,26 +15,24 @@ Comments:
 
 Chip type               : ATmega328P
 Program type            : Application
-AVR Core Clock frequency: 0.125000 MHz
+AVR Core Clock frequency: 1.000000 MHz
 Memory model            : Small
 External RAM size       : 0
 Data Stack size         : 512
 *******************************************************/
 
 #include <mega328p.h>
-
-// Declare your global variables here
 #include <delay.h>
 #include <stdint.h>
 #include <stdio.h>
 //----------------------------------------------------------------------
 typedef enum RelayNumber
 {
-	Fan = 0x01,
-	One = 0x02,
-	Two = 0x03,
-	Three = 0x04,
-	All = 0x05
+    Fan = 0x01,
+    One = 0x02,
+    Two = 0x03,
+    Three = 0x04,
+    All = 0x05
 }Relay;
 
 unsigned char SegNum[10] = {0x30, 0xF9, 0x52, 0xD0, 0x99, 0x94, 0x14, 0xF1, 0x10, 0x90};
@@ -122,13 +120,13 @@ PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<
 
 // Timer/Counter 0 initialization
 // Clock source: System Clock
-// Clock value: 0.488 kHz
+// Clock value: 0.977 kHz
 // Mode: Normal top=0xFF
 // OC0A output: Disconnected
 // OC0B output: Disconnected
-// Timer Period: 0.52429 s
+// Timer Period: 0.26214 s
 TCCR0A=(0<<COM0A1) | (0<<COM0A0) | (0<<COM0B1) | (0<<COM0B0) | (0<<WGM01) | (0<<WGM00);
-TCCR0B=(0<<WGM02) | (1<<CS02) | (0<<CS01) | (0<<CS00);
+TCCR0B=(0<<WGM02) | (1<<CS02) | (0<<CS01) | (1<<CS00);
 TCNT0=0x00;
 OCR0A=0x00;
 OCR0B=0x00;
@@ -199,35 +197,33 @@ UCSR0B=(0<<RXCIE0) | (0<<TXCIE0) | (0<<UDRIE0) | (0<<RXEN0) | (0<<TXEN0) | (0<<U
 // The Analog Comparator's negative input is
 // connected to the AIN1 pin
 ACSR=(1<<ACD) | (0<<ACBG) | (0<<ACO) | (0<<ACI) | (0<<ACIE) | (0<<ACIC) | (0<<ACIS1) | (0<<ACIS0);
-ADCSRB=(0<<ACME);
 // Digital input buffer on AIN0: On
 // Digital input buffer on AIN1: On
 DIDR1=(0<<AIN0D) | (0<<AIN1D);
 
 // ADC initialization
-// ADC Clock frequency: 0.977 kHz
+// ADC Clock frequency: 15.625 kHz
 // ADC Voltage Reference: AREF pin
 // ADC Auto Trigger Source: ADC Stopped
 // Digital input buffers on ADC0: On, ADC1: On, ADC2: On, ADC3: On
 // ADC4: On, ADC5: On
 DIDR0=(0<<ADC5D) | (0<<ADC4D) | (0<<ADC3D) | (0<<ADC2D) | (0<<ADC1D) | (0<<ADC0D);
 ADMUX=ADC_VREF_TYPE;
-ADCSRA=(1<<ADEN) | (0<<ADSC) | (0<<ADATE) | (0<<ADIF) | (0<<ADIE) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
+ADCSRA=(1<<ADEN) | (0<<ADSC) | (0<<ADATE) | (0<<ADIF) | (0<<ADIE) | (1<<ADPS2) | (1<<ADPS1) | (0<<ADPS0);
 ADCSRB=(0<<ADTS2) | (0<<ADTS1) | (0<<ADTS0);
 
 // SPI initialization
 // SPI Type: Master
-// SPI Clock Rate: 31.250 kHz
+// SPI Clock Rate: 2*15.625 kHz
 // SPI Clock Phase: Cycle Start
-// SPI Clock Polarity: Low
+// SPI Clock Polarity: High
 // SPI Data Order: MSB First
-SPCR=(0<<SPIE) | (1<<SPE) | (0<<DORD) | (1<<MSTR) | (0<<CPOL) | (0<<CPHA) | (0<<SPR1) | (0<<SPR0);
-SPSR=(0<<SPI2X);
+SPCR=(0<<SPIE) | (1<<SPE) | (0<<DORD) | (1<<MSTR) | (1<<CPOL) | (0<<CPHA) | (1<<SPR1) | (0<<SPR0);
+SPSR=(1<<SPI2X);
 
 // TWI initialization
 // TWI disabled
 TWCR=(0<<TWEA) | (0<<TWSTA) | (0<<TWSTO) | (0<<TWEN) | (0<<TWIE);
-
 //----------------------------------------------------------------------
 Initial();
 TempInit = TempSensor_Update();
@@ -490,5 +486,4 @@ void Initial(void)
     delay_ms(2000);
 }
 //----------------------------------------------------------------------
-
 
