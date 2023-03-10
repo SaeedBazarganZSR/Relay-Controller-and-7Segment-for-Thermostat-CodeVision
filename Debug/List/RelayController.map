@@ -2,10 +2,19 @@ RAM Allocation [bytes]
 Variable                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
 SegNum                                                                            0x0300      10
+TempCheckSecond                                                                   0x030A       1
+FanFlag                                                                           0x030B       1
+TurnOFF_FanSecond                                                                 0x030C       1
+ToggleWarning                                                                     0x030D       1
+SettingCount                                                                      0x030E       1
+SettingFlag                                                                       0x030F       1
+DiffTempTarget                                                                    0x0310       1
+DiffTempSet                                                                       0x0311       1
 
 EEPROM Allocation [bytes]
 Variable                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
+EEPROM_Value                                                                      0x0000       1
 
 Register Allocation
 Variable                                                                          Register  Size
@@ -24,18 +33,22 @@ TempSetTarget                                                                   
 FLASH Allocation [words]
 Function                                                                          Address   Size
 ------------------------------------------------------------------------------------------------
-read_adc                                                                          0x0007E     27
-timer0_init                                                                       0x00099      6
-main                                                                              0x0009F    148
-Relay_TurnOn                                                                      0x00133     31
-Relay_TurnOff                                                                     0x00152     31
-Warning_On                                                                        0x00171      2
-Warning_Off                                                                       0x00173      2
-Display                                                                           0x00175     71
-Display_Configuration                                                             0x001BC     33
-Keys_Update                                                                       0x001DD     24
-WindSensor_Update                                                                 0x001F5      8
-LimitSensor_Update                                                                0x001FD     18
-TempSensor_Update                                                                 0x0020F     38
-Initial                                                                           0x00235     24
-spi                                                                               0x0024D      9
+read_adc                                                                          0x00082     27
+timer0_init                                                                       0x0009D      6
+main                                                                              0x000A3    109
+Routine                                                                           0x00110     89
+Relay_TurnOn                                                                      0x00169     31
+Relay_TurnOff                                                                     0x00188     31
+Warning_On                                                                        0x001A7      2
+Warning_Off                                                                       0x001A9      2
+Display                                                                           0x001AB     71
+Display_Configuration                                                             0x001F2     33
+Keys_Update                                                                       0x00213     63
+WindSensor_Update                                                                 0x00252      8
+LimitSensor_Update                                                                0x0025A     18
+TempSensor_Update                                                                 0x0026C     38
+Initial                                                                           0x00292     26
+EEPROM_Write                                                                      0x002AC     12
+EEPROM_Read                                                                       0x002B8     14
+SettingUpdate                                                                     0x002C6     43
+spi                                                                               0x002F1      9

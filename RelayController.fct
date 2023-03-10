@@ -1,4 +1,4 @@
-main DSTACK_USAGE:0 DSTACK_LEVEL:0 FILE:"RelayController.c" LINE:90
-Display DSTACK_USAGE:2 DSTACK_LEVEL:2 FILE:"RelayController.c" LINE:333
-Display_Configuration DSTACK_USAGE:2 DSTACK_LEVEL:4 FILE:"RelayController.c" LINE:370
+main DSTACK_USAGE:0 DSTACK_LEVEL:0 FILE:"RelayController.c" LINE:106
+Display DSTACK_USAGE:2 DSTACK_LEVEL:2 FILE:"RelayController.c" LINE:374
+Display_Configuration DSTACK_USAGE:2 DSTACK_LEVEL:4 FILE:"RelayController.c" LINE:411
 spi DSTACK_USAGE:1 DSTACK_LEVEL:5 FILE:"C:\cvavr\lib\spi.lib" LINE:64
